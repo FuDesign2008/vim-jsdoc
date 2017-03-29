@@ -39,4 +39,25 @@ class Foo {
   bar(aaa, bb, ccc) { } // shorthand method
 }
 
-class Foo extends Bar { }
+class Bar extends Foo {
+}
+
+function bar ({ arg1, arg2 }) {
+  console.log(arg1, arg2);
+}
+bar({arg1: 'foo', arg2: 'bar'})
+
+function baz ({arg1}) { }
+
+function bazz ({ arg1, arg2 = { key: value }}) {
+  console.log(arg2);
+}
+bazz({ arg1: 'foo', arg2: { key: 'value' }});
+
+function bazzz ({ arg1, arg2 } = {}) {}
+
+function bazzzz (arg1 = 'foo', { arg2, arg3 } = {}) {}
+
+function bazzzzz (arg1, { arg2, arg3 }, arg4) {}
+
+function bazzzzzz ({ arg1, arg2 }, { arg3, arg4 }) {}

@@ -110,6 +110,7 @@ let s:regexs = {
       \   'arrow':                 '^.\{-}\s*\([a-zA-Z_$][a-zA-Z0-9_$]*\)\s*[:=]\s*(\s*\([^)]*\)\s*)\s*=>.*$',
       \   'arrow_single':          '^.\{-}\s*\([a-zA-Z_$][a-zA-Z0-9_$]*\)\s*[:=]\s*\([^=]*\).*$',
       \   'return_type':           ')\(:\|:\s\|\s*:\s*\)\([a-zA-Z]\+\).*$',
+      \   'destructuring':         '\({\|(\s+{\)\([^)]*\)\s*',
       \   'interface':             '^.\{-}\s*interface\s*\([a-zA-Z_$][a-zA-Z0-9_$]*\).*$',
       \   'access':                '^\s*\(public\|protected\|private\)',
       \   'implements':            '^.\{-}\s*implements\s*\(\([^{]*\)\).*$',
@@ -118,6 +119,51 @@ let s:regexs = {
 
 function! s:trim(value)
   return substitute(a:value, '\s', '', 'g')
+endfunction
+
+function! s:parse_destructuring_params(arg) abort
+  " Parse destructuring objects.
+  " - `function foo({ arg1, arg2 })`
+  " - `function foo(arg1, { arg2, arg3 })`
+  " - `function foo(arg1, { arg2, arg3 } = {})`
+  " - `function foo({ arg1, arg2 }, { arg3, arg4 })`
+  " - `function foo(foo: { key: string, value: number })`
+  " FIXME Too complicated...
+  let ret = {'typed': 0, 'default_keyword': 0, 'destructuring': 0}
+  if a:arg =~ s:regexs['destructuring']
+    " Destructured object.
+    " `funtion foo({ arg1, arg2 })`.
+    if a:arg =~ '[A-Za-z0-9_-]*:\({\|\s*{\)'
+      " Maybe flow type.
+      " `function foo(arg1: { key: string, val: number }, arg2: { key: string })
+      let strs = split(a:arg, '},')
+      let args = []
+      for str in strs
+        let typed_str = matchstr(str, '[A-Za-z0-9_-]*:\({\|\s*{\).*')
+        let str = substitute(str, typed_str, '', '')
+        if str != '' && str != ' '
+          call add(args, s:trim(substitute(str, ',', '', '')))
+        endif
+        if typed_str == ''
+          continue
+        endif
+        if typed_str !~ '}'
+          let typed_str = substitute(typed_str, '\s$', '', '') . ' }'
+        endif
+        call add(args, s:trim(typed_str))
+      endfor
+      let ret['typed'] = args
+    elseif a:arg =~ '='
+      " With default keyword
+      let strs = matchstr(s:trim(a:arg), "[A-Za-z0-9-_]*=.*,")
+    else
+      let strs = s:trim(a:arg)
+      let destructured_arg = matchstr(strs, '{.*}')
+      echomsg string(destructured_arg)
+    endif
+  endif
+
+  return {}
 endfunction
 
 " If someday Vim support lambda use lambda.
@@ -392,6 +438,7 @@ function! jsdoc#insert() abort
       let l:extends = substitute(l:argString, s:regexs['extends'], '\1', 'g')
       let l:parent_class = matchstr(l:extends, '^\([a-zA-Z0-9-_$]*\)')
     else
+      call s:parse_destructuring_params(l:argString)
       let l:args = split(l:argString, '\s*,\s*')
     endif
 
