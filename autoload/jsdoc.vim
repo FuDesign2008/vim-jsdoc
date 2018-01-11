@@ -12,6 +12,7 @@ set cpo&vim
 let g:jsdoc_input_description       = get(g:, 'jsdoc_input_description')
 let g:jsdoc_additional_descriptions = get(g:, 'jsdoc_additional_descriptions')
 let g:jsdoc_disable_function_name   = get(g:, 'jsdoc_disable_function_name')
+let g:jsdoc_compress_mode           = get(g:, 'jsdoc_compress_mode')
 let g:jsdoc_return                  = get(g:, 'jsdoc_return', 1)
 let g:jsdoc_return_description      = get(g:, 'jsdoc_return_description', 1)
 let g:jsdoc_allow_input_prompt      = get(g:, 'jsdoc_allow_input_prompt')
@@ -339,6 +340,18 @@ function! s:parse_keyword_arg(arg)
   return result
 endfunction
 
+function! s:compress_lines(lines)
+  let l:compressed = []
+  for l:item in a:lines
+    let l:trimed = s:trim(l:item)
+    if l:trimed !=# '*'
+      call add(l:compressed, l:item)
+    endif
+  endfor
+  return l:compressed
+endfunction
+
+
 function! jsdoc#insert() abort
   let startpos = line('.')
   " Move cursor to the head.
@@ -515,6 +528,9 @@ function! jsdoc#insert() abort
   endif
   call add(l:lines, l:space . ' */')
 
+  if g:jsdoc_compress_mode == 1
+    l:lines = s:compress_lines(l:lines)
+  endif
 
   let l:paste = &g:paste
   let &g:paste = 1
