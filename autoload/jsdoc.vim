@@ -529,7 +529,7 @@ function! jsdoc#insert() abort
   call add(l:lines, l:space . ' */')
 
   if g:jsdoc_compress_mode == 1
-    l:lines = s:compress_lines(l:lines)
+    let l:lines = s:compress_lines(l:lines)
   endif
 
   let l:paste = &g:paste
