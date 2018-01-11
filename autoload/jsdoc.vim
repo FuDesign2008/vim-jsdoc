@@ -515,9 +515,6 @@ function! jsdoc#insert() abort
   endif
   call add(l:lines, l:space . ' */')
 
-  if g:jsdoc_disable_function_name == 1
-    return
-  endif
 
   let l:paste = &g:paste
   let &g:paste = 1
@@ -526,8 +523,10 @@ function! jsdoc#insert() abort
   let l:pos = startpos + 1
 
   silent! execute 'normal! ' . l:pos . 'G$'
-  if l:desc ==# '' && l:funcName !=# ''
-    silent! execute 'normal! a' . l:funcName
+  if g:jsdoc_disable_function_name == 0
+      if l:desc ==# '' && l:funcName !=# ''
+        silent! execute 'normal! a' . l:funcName
+      endif
   endif
 
   let &g:paste = l:paste
