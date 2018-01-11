@@ -11,6 +11,7 @@ set cpo&vim
 
 let g:jsdoc_input_description       = get(g:, 'jsdoc_input_description')
 let g:jsdoc_additional_descriptions = get(g:, 'jsdoc_additional_descriptions')
+let g:jsdoc_disable_function_name   = get(g:, 'js_doc_disable_function_name')
 let g:jsdoc_return                  = get(g:, 'jsdoc_return', 1)
 let g:jsdoc_return_description      = get(g:, 'jsdoc_return_description', 1)
 let g:jsdoc_allow_input_prompt      = get(g:, 'jsdoc_allow_input_prompt')
@@ -350,7 +351,7 @@ function! jsdoc#insert() abort
   endif
 
   let l:indentCharSpace = ' '
-  let l:indentCharTab   = '	'
+  let l:indentCharTab   = ' '
   let l:autoexpandtab   = &l:expandtab
 
   if l:autoexpandtab == 0 " noexpandtab
@@ -513,6 +514,10 @@ function! jsdoc#insert() abort
     endif
   endif
   call add(l:lines, l:space . ' */')
+
+  if g:jsdoc_disable_function_name == 1
+    return
+  endif
 
   let l:paste = &g:paste
   let &g:paste = 1

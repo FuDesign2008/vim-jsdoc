@@ -105,6 +105,13 @@ g:jsdoc_input_description		*g:jsdoc_input_description*
 
 		Default value is '0'
 
+g:jsdoc_disable_function_name		*g:jsdoc_disable_function_name*
+		If g:jsdoc_disable_function_name is '1' Do not add function
+		name
+
+		Default value is '0'
+
+
 g:jsdoc_allow_input_prompt		*g:jsdoc_allow_input_prompt*
 		Allow prompt for a value for `@param`, `@return`
 		add it to the JSDoc block.
